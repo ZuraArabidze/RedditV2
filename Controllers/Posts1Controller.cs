@@ -73,6 +73,12 @@ namespace Reddit.Controllers
         [HttpPost]
         public async Task<ActionResult<Post>> PostPost(PostDto postDto)
         {
+            var community = await _context.Communities.FindAsync(postDto.CommunityId);
+            if (community == null)
+            {
+                return NotFound("Community not found");
+            }
+
             var post = postDto.CreatePost();
 
             _context.Posts.Add(post);
