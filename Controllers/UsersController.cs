@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using Reddit;
 using Reddit.Dtos;
 using Reddit.Models;
+using Reddit.Repositories;
 
 namespace Reddit.Controllers
 {
@@ -16,17 +19,19 @@ namespace Reddit.Controllers
     public class UsersController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IUserRepository _userRepository;
 
-        public UsersController(ApplicationDbContext context)
+        public UsersController(ApplicationDbContext context,IUserRepository userRepository)
         {
             _context = context;
+            _userRepository = userRepository;
         }
 
         // GET: api/Users
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        public async Task<UserList<User>> GetUsers(int pageNumber = 1, int pageSize = 3, bool isAscending = true , string? sortKey = null, string? SearchKey = null)
         {
-            return await _context.Users.ToListAsync();
+            return await _userRepository.GetPosts(pageNumber, pageSize, SearchKey, sortKey, isAscending);
         }
 
         // GET: api/Users/5
@@ -107,5 +112,7 @@ namespace Reddit.Controllers
         {
             return _context.Users.Any(e => e.Id == id);
         }
+
+
     }
 }
